@@ -106,6 +106,11 @@ describe("jsdoc/util/templateHelper", function() {
         expect(typeof helper.getAncestorLinks).toBe("function");
     });
 
+    it("should export a 'addEventFirers' function", function() {
+        expect(helper.addEventFirers).toBeDefined();
+        expect(typeof helper.addEventFirers).toBe("function");
+    });
+
     it("should export a 'addEventListeners' function", function() {
         expect(helper.addEventListeners).toBeDefined();
         expect(typeof helper.addEventListeners).toBe("function");
@@ -1109,6 +1114,29 @@ describe("jsdoc/util/templateHelper", function() {
 
             delete helper.longnameToUrl['module:mafia/gangs'];
             delete helper.longnameToUrl['module:mafia/gangs.Sharks~Henchman'];
+        });
+    });
+
+    describe("addEventFirers", function() {
+        var doclets = (taffy(doop(jasmine.getDocSetFromFile('test/fixtures/eventfirestag.js').doclets))),
+            ev = helper.find(doclets, {longname: 'Hurl#event:snowball'})[0],
+            ev2 = helper.find(doclets, {longname: 'Hurl#event:footballMatch'})[0];
+
+        helper.addEventFirers(doclets);
+
+        it("adds a 'firers' array to events with the longnames of the firers", function() {
+            expect(Array.isArray(ev.firers)).toBe(true);
+            expect(Array.isArray(ev2.firers)).toBe(true);
+
+            expect(ev.firers.length).toBe(1);
+            expect(ev.firers).toContain('Hurl#snowball');
+
+            expect(ev2.firers.length).toBe(1);
+            expect(ev2.firers).toContain('Hurl#footballMatch');
+        });
+
+        it("does not make spurious doclets if something @fires to a non-existent symbol", function() {
+            expect(helper.find(doclets, {longname: 'Hurl#event:brick'}).length).toBe(0);
         });
     });
 
